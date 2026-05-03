@@ -1,0 +1,13 @@
+<form action="/rezultat-chestionar" method="POST">
+	<% for (let [i, obj] of intrebari.entries()) { %>
+		<p> <%= obj.intrebare %> </p>
+		<% for (let [j, varianta] of obj.variante.entries()) { %>
+			<input type="radio" name="q<%= i %>" id="q<%= i %>_v<%= j %>" value="<%= j %>" required>
+            <!-- name="//acelasi" id="//diferit" -->
+			<label for="q<%= i %>_v<%= j %>"><%= varianta %></label>
+            <br>
+		<% } %>
+	<% } %>
+    <br>
+	<button type="submit">Trimite</button>
+</form>
