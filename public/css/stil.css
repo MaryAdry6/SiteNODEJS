@@ -1,0 +1,140 @@
+@charset "UTF-8";
+
+:root {
+    --font-titlu: "Syne Mono", monospace;
+    --font-text: "Alegreya", serif;
+    --curbura: 6px;
+    --margine: 15px;
+
+    --color-white: #EFE1F1;
+    --color-gray: #b2aab9;
+    --color-purple: #895782;
+    --color-lila: #8470C2;
+    --color-dark: #2B1B2B;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    scrollbar-width: auto;
+    scrollbar-color: var(--color-gray) var(--color-purple);
+
+    scroll-snap-type: y mandatory;
+    scroll-behavior: smooth;
+}
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+
+    background-color: var(--color-gray);
+}
+main {
+    flex: 1;
+}
+header {
+    font-family: var(--font-titlu);
+    font-size: 20px;
+    background-color: var(--color-purple);
+    color: var(--color-dark);
+
+    padding: 10px;
+    margin: var(--margine);
+
+    border: 2px dashed var(--color-lila);
+    border-radius: var(--curbura);
+}
+footer {
+    font-family: var(--font-text);
+    color: var(--color-dark);
+    font-size: 21px;
+
+    padding-top: 2px;
+    padding-bottom: 3px;
+    width: 100%;
+    z-index: 2;
+}
+footer span {
+    font-family: var(--font-titlu);
+    color: var(--color-lila);
+}
+footer hr {
+    border: none;
+    border-top: 1px dashed var(--color-purple);
+    margin: 3px 0px;
+}
+
+h2 {
+    font-family: var(--font-titlu);
+    color: var(--color-lila);
+    font-size: 32px;
+
+    margin: var(--margine);
+
+    text-decoration-line: underline;
+    text-decoration-style: dashed;
+    text-decoration-color: var(--color-purple);
+    text-decoration-thickness: 2px;
+}
+
+form {
+    margin-left: calc(var(--margine) * 2);
+}
+form p {
+    font-family: var(--font-text);
+    font-size: 28px;
+    color: var(--color-purple);
+}
+form span {
+    font-family: var(--font-titlu);
+    color: var(--color-lila);
+    text-shadow: 1px 2px var(--color-purple);
+}
+form input {
+    margin-left: calc(var(--margine) * 3);
+}
+form label {
+    font-family: var(--font-text);
+    font-size: 22px;
+    color: var(--color-dark);
+}
+form button {
+    font-family: var(--font-titlu);
+    font-size: 25px;
+    background-color: var(--color-purple);
+    color: var(--color-gray);
+
+    border: 2px dashed var(--color-lila);
+    padding: 10px;
+}
+form button:hover {
+    box-shadow: 3px 3px 20px 5px var(--color-lila) inset;
+}
+form button:active {
+    background-color: var(--color-lila);
+    border: 2px dashed var(--color-purple);
+    color: var(--color-white);
+}
+
+#rezultat-chestionar {
+    font-family: var(--font-text);
+    font-size: 25px;
+    color: var(--color-purple);
+    margin-left: calc(var(--margine) * 2);
+}
+#rezultat-chestionar a {
+    color: var(--color-dark);
+    text-decoration-line: underline;
+    text-decoration-style: dashed;
+    text-decoration-color: var(--color-dark);
+    text-decoration-thickness: 3px;
+}
+#rezultat-chestionar p {
+    /* font-family: var(--font-titlu); */
+    font-size: 100px;
+    margin-left: calc(var(--margine) * 3);
+}

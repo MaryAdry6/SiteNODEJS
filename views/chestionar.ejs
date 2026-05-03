@@ -1,7 +1,7 @@
 <h2>Chestionar despre ELECTROCASNICE</h2>
 <form action="/rezultat-chestionar" method="POST">
 	<% for (let [i, obj] of intrebari.entries()) { %>
-		<p> <%= i+1%>. <%= obj.intrebare %> </p>
+		<p> <span><%= i+1%>.</span> <%= obj.intrebare %> </p>
 		<% for (let [j, varianta] of obj.variante.entries()) { %>
 			<input type="radio" name="q<%= i %>" id="q<%= i %>_v<%= j %>" value="<%= j %>" required>
             <!-- name="//acelasi" id="//diferit" -->
