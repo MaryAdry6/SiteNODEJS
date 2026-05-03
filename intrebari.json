@@ -1,0 +1,31 @@
+[
+    {
+        "intrebare": "Din ce material NU trebuie să fie vasul pus în cuptorul cu microunde?",
+        "variante": ["Sticlă", "Plastic special pentru microunde", "Metal / Aluminiu"],
+        "corect": 2
+    },
+
+    {
+        "intrebare": "Ce se întâmplă dacă pui prea mult detergent în mașina de spălat rufe?",
+        "variante": ["Hainele se spală mai repede", "Se formează spumă în exces care poate bloca pompa sau lăsa pete albe pe haine", "Mașina consumă mai puțină apă"],
+        "corect": 1
+    },
+
+    {
+        "intrebare": "Unde este cel mai rece loc într-un frigider obișnuit",
+        "variante": ["Pe raftul de jos, deasupra lăzii de legume", "Pe raftul de sus", "Pe ușa frigiderului"],
+        "corect": 0
+    },
+
+    {
+        "intrebare": "Cum poți curăța eficient și natural interiorul unui cuptor cu microunde murdar?",
+        "variante": ["Răzuind pereții cu un burete de sârmă", "Încălzind un bol cu apă și felii de lămâie până se creează abur", "Lăsând ușa deschisă timp de 24 de ore"],
+        "corect": 1
+    },
+
+    {
+        "intrebare": "Ce tip de vase sunt cele mai eficiente pentru un cuptor cu convecție (cu ventilator)?",
+        "variante": ["Vase cu pereți înalți, pentru a proteja mâncarea", "Vase acoperite ermetic cu folie de aluminiu", "Tăvi cu margini joase, pentru a permite aerului cald să circule peste mâncare"],
+        "corect": 2
+    }
+]
