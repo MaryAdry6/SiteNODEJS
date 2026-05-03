@@ -16,10 +16,8 @@ app.use(bodyParser.urlencoded({ extended: true }));
 // la accesarea din browser adresei http://localhost:6789/ se va returna textul 'Hello World'
 // proprietățile obiectului Request - req - https://expressjs.com/en/api.html#req
 // proprietățile obiectului Response - res - https://expressjs.com/en/api.html#res
-app.get('/', (req, res) => res.send('Hello World'));
-// la accesarea din browser adresei http://localhost:6789/chestionar se va apela funcția specificată
-app.get('/chestionar', (req, res) => {
-    const listaIntrebari = [
+
+const listaIntrebari = [
         {
             intrebare: 'Din ce material NU trebuie să fie vasul pus în cuptorul cu microunde?',
             variante: ['Sticlă', 'Plastic special pentru microunde', 'Metal / Aluminiu'],
@@ -51,7 +49,11 @@ app.get('/chestionar', (req, res) => {
         }
 
     ];
- // în fișierul views/chestionar.ejs este accesibilă variabila 'intrebari' care conține vectorul de întrebări
+
+app.get('/', (req, res) => res.send('Hello World'));
+// la accesarea din browser adresei http://localhost:6789/chestionar se va apela funcția specificată
+app.get('/chestionar', (req, res) => {
+    // în fișierul views/chestionar.ejs este accesibilă variabila 'intrebari' care conține vectorul de întrebări
     res.render('chestionar', {intrebari: listaIntrebari});
 });
 app.post('/rezultat-chestionar', (req, res) => {
@@ -67,7 +69,7 @@ app.post('/rezultat-chestionar', (req, res) => {
     }
 
     res.render('rezultat-chestionar', { 
-        scorAbtinut: scor, 
+        scorObtinut: scor, 
         totalIntrebari: listaIntrebari.length 
     });
 
