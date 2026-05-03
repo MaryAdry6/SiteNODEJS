@@ -48,6 +48,9 @@ header {
     border: 2px dashed var(--color-lila);
     border-radius: var(--curbura);
 }
+header h1:hover {
+    color: var(--color-white);
+}
 footer {
     font-family: var(--font-text);
     color: var(--color-dark);
@@ -132,6 +135,10 @@ form button:active {
     text-decoration-style: dashed;
     text-decoration-color: var(--color-dark);
     text-decoration-thickness: 3px;
+}
+#rezultat-chestionar a:hover {
+    color: var(--color-white);
+    text-decoration-color: var(--color-white);
 }
 #rezultat-chestionar p {
     /* font-family: var(--font-titlu); */
