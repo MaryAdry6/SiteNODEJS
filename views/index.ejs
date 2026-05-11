@@ -1,6 +1,16 @@
 <h2>Pagina Principală</h2>
 
 <div class="descriere">
-    <p>Trebuie să te autentifici!</p>
-    <a href="/autentificare"><i>Autentificare→</i></a>
+    <% if (utilizator) { %>
+        <p>Bine ai venit, <%= utilizator.Prenume %>!</p>
+    <% } else { %>
+        <p>Trebuie să te autentifici!</p>
+        <a href="/autentificare"><i>Autentificare→</i></a>
+    <% } %>
+</div>
+
+<div class="BD">
+    <button class="butonBD">Creare BD</button>
+    <br><br>
+    <button class="butonBD">Încarcare BD</button>
 </div>

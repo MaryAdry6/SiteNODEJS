@@ -5,6 +5,21 @@ const fs = require('fs'); // modulul pentru fisiere
 const app = express();
 const port = 6789;
 
+const cookieParser = require('cookie-parser');
+app.use(cookieParser());
+
+const session = require('express-session');
+app.use(session({
+    secret: 'amogus',
+    resave: false,
+    saveUninitialized: false
+}));
+
+app.use((req, res, next) => {
+    res.locals.utilizator = req.session.utilizator;
+    next();
+});//variabila utilizator devine disponibila global în toate fisierele EJS
+
 app.set('view engine', 'ejs');
 app.use(expressLayouts);
 app.use(express.static('public'))
@@ -12,17 +27,47 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 app.get('/', (req, res) => {
+    // const utilizatorLogat = req.cookies.utilizator;
+    // res.render('index', { utilizator: utilizatorLogat });
+
     res.render('index');
 });
 
 app.get('/autentificare', (req, res) => {
-    res.render('autentificare');
+    const mesajEroare = req.cookies.mesajEroare;
+    res.render('autentificare', { mesajEroare: mesajEroare });
 });
 
 app.post('/verificare-autentificare', (req, res) => {
-    console.log(req.body);
-    
-    res.send("Datele au fost primite. Verifică terminalul serverului tău!");
+    const { utilizator, parola } = req.body;
+
+    fs.readFile('utilizatori.json', 'utf8', (err, data) => {
+        if (err) {
+            console.error("Eroare la citirea utilizatorilor:", err);
+            return res.status(500).send("Eroare server");
+        }
+
+        const utilizatori = JSON.parse(data);
+        const userGasit = utilizatori.find(u => u.utilizator === utilizator && u.parola === parola);
+
+        if (userGasit) {
+            let profilUtilizator = { ...userGasit };
+            delete profilUtilizator.parola;
+
+            req.session.utilizator = profilUtilizator;
+            
+            res.clearCookie('mesajEroare');
+            res.redirect('/');
+        } else {
+            res.cookie('mesajEroare', 'Utilizator sau parolă incorectă!');
+            res.redirect('/autentificare');
+        }
+    });
+});
+
+app.get('/deconectare', (req, res) => {
+    req.session.destroy();
+    res.redirect('/');
 });
 
 app.get('/chestionar', (req, res) => {

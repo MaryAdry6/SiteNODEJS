@@ -18,8 +18,14 @@
 	<body>
 		<header>
             <a href="/"><h1>Electrocasnice</h1></a>
-            <a href="/chestionar" style="font-weight: 700">?</a>
-            <a href="/autentificare">➜]</a>
+            <nav>
+                <% if (utilizator) { %>
+                    <a href="/deconectare"><i><%= utilizator.utilizator %></i></a>
+                <% } %>
+
+                <a href="/chestionar" style="font-weight: 700">?</a>
+                <a href="/autentificare">➜]</a>
+            </nav>
 		</header>
         
         <main>

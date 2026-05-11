@@ -56,12 +56,18 @@ header a {
     text-decoration: none;
     color: var(--color-dark);
 }
-header a:nth-child(2) {
+header a i {
+    color: var(--color-white);
+}
+header nav {
     font-size: 30px;
     margin-left: auto;
 }
 header a:hover {
     color: var(--color-white);
+}
+header a i:hover {
+    color: var(--color-lila);
 }
 footer {
     font-family: var(--font-text);
@@ -130,8 +136,9 @@ form button {
     font-size: 25px;
     background-color: var(--color-purple);
     color: var(--color-gray);
-
+    
     border: 2px dashed var(--color-lila);
+    border-radius: var(--curbura);
     padding: 10px;
 }
 form button:hover {
@@ -164,4 +171,26 @@ form button:active {
     /* font-family: var(--font-titlu); */
     font-size: 100px;
     margin-left: calc(var(--margine) * 3);
+}
+
+.BD {
+    margin-left: calc(var(--margine) * 3);
+}
+.butonBD {
+    font-family: var(--font-titlu);
+    font-size: 30px;
+    background-color: var(--color-lila);
+    color: var(--color-white);
+
+    border: 2px dashed var(--color-dark);
+    border-radius: var(--curbura);
+    padding: 15px;
+}
+.butonBD:hover {
+    box-shadow: 3px 3px 20px 5px var(--color-white) inset;
+}
+.butonBD:active {
+    border-style: solid;
+    color: var(--color-dark);
+    box-shadow: 4px 4px 50px 5px var(--color-white) inset;
 }
