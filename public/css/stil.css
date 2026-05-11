@@ -37,6 +37,10 @@ main {
     flex: 1;
 }
 header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
     font-family: var(--font-titlu);
     font-size: 20px;
     background-color: var(--color-purple);
@@ -48,7 +52,15 @@ header {
     border: 2px dashed var(--color-lila);
     border-radius: var(--curbura);
 }
-header h1:hover {
+header a {
+    text-decoration: none;
+    color: var(--color-dark);
+}
+header a:nth-child(2) {
+    font-size: 30px;
+    margin-left: auto;
+}
+header a:hover {
     color: var(--color-white);
 }
 footer {
@@ -99,6 +111,14 @@ form span {
 }
 form input {
     margin-left: calc(var(--margine) * 3);
+    background-color: var(--color-lila);
+
+    border-radius: var(--curbura);
+    border: 2px dashed var(--color-purple);
+
+    font-family: var(--font-text);
+    font-size: 18px;
+    color: var(--color-white);
 }
 form label {
     font-family: var(--font-text);
@@ -123,24 +143,24 @@ form button:active {
     color: var(--color-white);
 }
 
-#rezultat-chestionar {
+.descriere {
     font-family: var(--font-text);
     font-size: 25px;
     color: var(--color-purple);
     margin-left: calc(var(--margine) * 2);
 }
-#rezultat-chestionar a {
+.descriere a {
     color: var(--color-dark);
     text-decoration-line: underline;
     text-decoration-style: dashed;
     text-decoration-color: var(--color-dark);
     text-decoration-thickness: 3px;
 }
-#rezultat-chestionar a:hover {
+.descriere a:hover {
     color: var(--color-white);
     text-decoration-color: var(--color-white);
 }
-#rezultat-chestionar p {
+.descriere p {
     /* font-family: var(--font-titlu); */
     font-size: 100px;
     margin-left: calc(var(--margine) * 3);

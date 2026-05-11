@@ -11,7 +11,19 @@ app.use(express.static('public'))
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-app.get('/', (req, res) => res.send('Hello World'));
+app.get('/', (req, res) => {
+    res.render('index');
+});
+
+app.get('/autentificare', (req, res) => {
+    res.render('autentificare');
+});
+
+app.post('/verificare-autentificare', (req, res) => {
+    console.log(req.body);
+    
+    res.send("Datele au fost primite. Verifică terminalul serverului tău!");
+});
 
 app.get('/chestionar', (req, res) => {
     fs.readFile('intrebari.json', 'utf8', (err, data) => {
