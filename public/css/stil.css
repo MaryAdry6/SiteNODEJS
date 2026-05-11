@@ -174,17 +174,22 @@ form button:active {
 }
 
 .BD {
-    margin-left: calc(var(--margine) * 3);
+    margin-left: calc(var(--margine) * 5);
 }
 .butonBD {
     font-family: var(--font-titlu);
     font-size: 30px;
     background-color: var(--color-lila);
-    color: var(--color-white);
 
     border: 2px dashed var(--color-dark);
     border-radius: var(--curbura);
     padding: 15px;
+
+    width: 300px;
+}
+.butonBD a {
+    color: var(--color-white);
+    text-decoration: none;
 }
 .butonBD:hover {
     box-shadow: 3px 3px 20px 5px var(--color-white) inset;

@@ -15,6 +15,8 @@ app.use(session({
     saveUninitialized: false
 }));
 
+const sqlite3 = require('sqlite3').verbose();
+
 app.use((req, res, next) => {
     res.locals.utilizator = req.session.utilizator;
     next();
@@ -27,10 +29,16 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 app.get('/', (req, res) => {
-    // const utilizatorLogat = req.cookies.utilizator;
-    // res.render('index', { utilizator: utilizatorLogat });
+    
+    let db = new sqlite3.Database('cumparaturi.db');
 
-    res.render('index');
+    db.all("SELECT * FROM produse", [], (err, rows) => {
+        if (err) {
+            return res.render('index', { produse: [] });
+        }
+        res.render('index', { produse: rows });
+        db.close();
+    });
 });
 
 app.get('/autentificare', (req, res) => {
@@ -102,8 +110,64 @@ app.post('/rezultat-chestionar', (req, res) => {
             totalIntrebari: intrebari.length 
         });
     });
-
-    // console.log(req.body);
-    // res.send("formular: " + JSON.stringify(req.body));
 });
+
+app.get('/creare-bd', (req, res) => {
+    let db = new sqlite3.Database('cumparaturi.db', (err) => {
+        if (err) {
+            console.error("Eroare la deschiderea bazei de date:", err.message);
+            return res.status(500).send("Eroare server");
+        }
+    });
+
+    db.run(`CREATE TABLE IF NOT EXISTS produse (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        nume TEXT NOT NULL,
+        firma TEXT NOT NULL,
+        pret REAL NOT NULL
+    )`, (err) => {
+        if (err) {
+            console.error("Eroare la crearea tabelei:", err.message);
+        } else {
+            console.log("Tabela 'produse' a fost creată/verificată.");
+        }
+        
+        db.close();
+        
+        res.redirect('/');
+    });
+});
+
+app.get('/incarcare-bd', (req, res) => {
+    let db = new sqlite3.Database('cumparaturi.db', (err) => {
+        if (err) {
+            console.error("Eroare la deschiderea BD:", err.message);
+            return res.status(500).send("Eroare server");
+        }
+    });
+
+    const produseDeTest = [
+        ['Frigider', 'Arctic', 1200.50],
+        ['Mașină de spălat', 'Beko', 1500.00],
+        ['Aspirator', 'Samsung', 449.99],
+        ['Cuptor microunde', 'Gorenje', 320.00],
+        ['Televizor LED Smart', 'LG', 2100.30]
+    ];
+
+    let sql = 'INSERT INTO produse (nume, firma, pret) VALUES (?, ?, ?), (?, ?, ?), (?, ?, ?), (?, ?, ?), (?, ?, ?)';
+    let params = produseDeTest.flat();
+
+    db.run(sql, params, function(err) {
+        if (err) {
+            console.error("Eroare la inserarea datelor:", err.message);
+        } else {
+            console.log(`Au fost inserate ${this.changes} rânduri în tabela produse.`);
+        }
+        
+        db.close();
+        res.redirect('/');
+    });
+});
+
+
 app.listen(port, () => console.log(`Serverul rulează la adresa http://localhost:${port}/`));
