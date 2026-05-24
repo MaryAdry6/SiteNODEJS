@@ -1,14 +1,14 @@
 [
     {
         "utilizator": "test",
-        "parola": "test",
+        "parola": "$2b$10$qsPTQ.2V.zaI01ndZ.H.ZuX9pmXLq3sA4kg0avMkiLzg35k51JUf.",
         "Nume": "test",
         "Prenume": "test"
     },
 
     {
         "utilizator": "adry",
-        "parola": "adry",
+        "parola": "$2b$10$uwzzdowvdTH5faDkh6xGTecXvt7WCbMU4cNPITzCsZhutPHcl1Dlq",
         "Nume": "Ciurila",
         "Prenume": "Adriana"
     }

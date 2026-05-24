@@ -17,6 +17,10 @@ app.use(session({
 
 const sqlite3 = require('sqlite3').verbose();
 
+const { body, validationResult } = require('express-validator');
+
+
+
 app.use((req, res, next) => {
     res.locals.utilizator = req.session.utilizator;
     next();
@@ -27,6 +31,19 @@ app.use(expressLayouts);
 app.use(express.static('public'))
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+
+
+const bcrypt = require('bcrypt');
+const saltRounds = 10; // complexitate criptografica
+
+async function inregistrareUtilizator(username, prenume, parolaSimpla) {
+    const hashParola = await bcrypt.hash(parolaSimpla, saltRounds);
+    
+    console.log(`Parola originală: ${parolaSimpla}`);
+    console.log(`Parola salvată în BD: ${hashParola}`); 
+    
+    // Aici salvezi 'hashParola' în baza de date sau în fișierul JSON
+}
 
 app.get('/', (req, res) => {
     if (!req.session.utilizator) {
@@ -49,30 +66,40 @@ app.get('/autentificare', (req, res) => {
     res.render('autentificare', { mesajEroare: mesajEroare });
 });
 
-app.post('/verificare-autentificare', (req, res) => {
+// parola => NO ESCAPE (pentru a nu strica caracterele speciale)                                   async pt bcrypt
+app.post('/verificare-autentificare', [body('utilizator').trim().escape(), body('parola').trim()], async(req, res) => {
+    const erori = validationResult(req);
+    if (!erori.isEmpty()) {
+        res.cookie('mesajEroare', 'Datele introduse conțin caractere interzise.');
+        return res.redirect('/autentificare');
+    }
+
     const { utilizator, parola } = req.body;
 
-    fs.readFile('utilizatori.json', 'utf8', (err, data) => {
+    fs.readFile('utilizatori.json', 'utf8', async(err, data) => {
         if (err) {
             console.error("Eroare la citirea utilizatorilor:", err);
             return res.status(500).send("Eroare server");
         }
 
         const utilizatori = JSON.parse(data);
-        const userGasit = utilizatori.find(u => u.utilizator === utilizator && u.parola === parola);
 
+        const userGasit = utilizatori.find(u => u.utilizator === utilizator);
         if (userGasit) {
-            let profilUtilizator = { ...userGasit };
-            delete profilUtilizator.parola;
+            const parolaCorecta = await bcrypt.compare(parola, userGasit.parola);
 
-            req.session.utilizator = profilUtilizator;
-            
-            res.clearCookie('mesajEroare');
-            res.redirect('/');
-        } else {
-            res.cookie('mesajEroare', 'Utilizator sau parolă incorectă!');
-            res.redirect('/autentificare');
+            if (parolaCorecta) {
+                let profilUtilizator = { ...userGasit };
+                delete profilUtilizator.parola;
+
+                req.session.utilizator = profilUtilizator;
+                res.clearCookie('mesajEroare');
+                return res.redirect('/');
+            }
         }
+
+        res.cookie('mesajEroare', 'Utilizator sau parolă incorectă!');
+        res.redirect('/autentificare');
     });
 });
 
@@ -192,7 +219,12 @@ app.get('/incarcare-bd', (req, res) => {
     });
 });
 
-app.post('/adauga-cos', (req, res) => {
+app.post('/adauga-cos', [body('id').trim().escape().isInt().toInt()], (req, res) => {
+    const erori = validationResult(req);
+    if (!erori.isEmpty()) {
+        return res.status(400).send("Cerere invalidă! ID-ul produsului este CoMpRoMiS.");
+    }
+
     if (!req.session.utilizator) {
         return res.status(401).send("Trebuie să fii autentificat pentru a adăuga în coș!");
     }
@@ -225,7 +257,7 @@ app.get('/vizualizare-cos', (req, res) => {
         JOIN produse p ON c.id_produs = p.id
         WHERE c.username = ?
         GROUP BY p.id
-    `;
+    `; // ? = > Prepared Statements (orice input este tratat strict ca un text sau numar)
 
     db.all(sql, [username], (err, rows) => {
         if (err) {
