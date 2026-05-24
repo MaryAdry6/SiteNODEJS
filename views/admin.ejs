@@ -1,0 +1,36 @@
+<h2>Panou Administrator - Adăugare Produs</h2>
+
+<div class="descriere">
+    <% if (typeof mesajSucces !== 'undefined' && mesajSucces) { %>
+        <div><%= mesajSucces %></div>
+    <% } %>
+
+    <% if (typeof mesajEroare !== 'undefined' && mesajEroare) { %>
+        <div><%= mesajEroare %></div>
+    <% } %>
+
+    <form action="/admin/adauga-produs" method="POST">
+        <div>
+            <label for="nume">Nume Produs:</label>
+            <br>
+            <input type="text" id="nume" name="nume">
+        </div>
+        <br>
+        <div>
+            <label for="firma">Firmă Producătoare:</label>
+            <br>
+            <input type="text" id="firma" name="firma">
+        </div>
+        <br>
+        <div>
+            <label for="pret">Preț (RON):</label>
+            <br>
+            <input type="number" id="pret" name="pret" step="0.01" min="0.01">
+        </div>
+        <br>
+        <button type="submit">Adaugă Produs</button>
+    </form>
+
+    <br>
+    <a href="/"><i>Înapoi la Pagina Principală →</i></a>
+</div>

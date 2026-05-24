@@ -36,13 +36,25 @@ app.use(bodyParser.urlencoded({ extended: true }));
 const bcrypt = require('bcrypt');
 const saltRounds = 10; // complexitate criptografica
 
-async function inregistrareUtilizator(username, prenume, parolaSimpla) {
-    const hashParola = await bcrypt.hash(parolaSimpla, saltRounds);
+// async function inregistrareUtilizator(username, prenume, parolaSimpla) {
+//     const hashParola = await bcrypt.hash(parolaSimpla, saltRounds);
     
-    console.log(`Parola originală: ${parolaSimpla}`);
-    console.log(`Parola salvată în BD: ${hashParola}`); 
-    
-    // Aici salvezi 'hashParola' în baza de date sau în fișierul JSON
+//     console.log(`Parola originală: ${parolaSimpla}`);
+//     console.log(`Parola salvată în BD: ${hashParola}`); 
+// }
+
+function verificaRol(rolPermis) {
+    return (req, res, next) => {
+        if (!req.session.utilizator) {
+            return res.redirect('/autentificare');
+        }
+        
+        if (req.session.utilizator.rol !== rolPermis) {
+            return res.status(403).send("<h2>403 Forbidden: Nu aveți permisiunea de a accesa această pagină!</h2><a href='/'>Înapoi la pagina principală →</a>");
+        }
+
+        next();
+    };
 }
 
 app.get('/', (req, res) => {
@@ -219,7 +231,7 @@ app.get('/incarcare-bd', (req, res) => {
     });
 });
 
-app.post('/adauga-cos', [body('id').trim().escape().isInt().toInt()], (req, res) => {
+app.post('/adauga-cos', [body('id_produs').trim().escape().isInt().toInt()], (req, res) => {
     const erori = validationResult(req);
     if (!erori.isEmpty()) {
         return res.status(400).send("Cerere invalidă! ID-ul produsului este CoMpRoMiS.");
@@ -270,6 +282,48 @@ app.get('/vizualizare-cos', (req, res) => {
         res.render('vizualizare-cos', { produseCos: rows, total: total });
         
         db.close();
+    });
+});
+
+app.get('/admin', verificaRol('ADMIN'), (req, res) => {
+    const mesajSucces = req.cookies.mesajSuccesAdmin;
+    const mesajEroare = req.cookies.mesajEroareAdmin;
+
+    res.clearCookie('mesajSuccesAdmin');
+    res.clearCookie('mesajEroareAdmin');
+
+    res.render('admin', { mesajSucces: mesajSucces, mesajEroare: mesajEroare });
+});
+
+app.post('/admin/adauga-produs', [
+    verificaRol('ADMIN'),
+    body('nume').trim().escape().notEmpty().withMessage('Numele produsului este obligatoriu.'),
+    body('firma').trim().escape().notEmpty().withMessage('Firma este obligatorie.'),
+    body('pret').trim().isFloat({ min: 0.01 }).withMessage('Prețul trebuie să fie un număr pozitiv, nenul.')
+], (req, res) => {
+    const erori = validationResult(req);
+    
+    if (!erori.isEmpty()) {
+        res.cookie('mesajEroareAdmin', erori.array()[0].msg);
+        return res.redirect('/admin');
+    }
+
+    const { nume, firma, pret } = req.body;
+    let db = new sqlite3.Database('cumparaturi.db');
+
+    const sql = "INSERT INTO produse (nume, firma, pret) VALUES (?, ?, ?)";
+    
+    db.run(sql, [nume, firma, parseFloat(pret)], function(err) {
+        db.close();
+        
+        if (err) {
+            console.error("Eroare la adăugarea produsului în BD:", err.message);
+            return res.status(500).send("Eroare la salvarea în baza de date.");
+            return res.redirect('/admin')
+        }
+
+        res.cookie('mesajSuccesAdmin', `Produsul "${nume}" a fost adăugat cu succes!`);
+        res.redirect('/admin');
     });
 });
 
