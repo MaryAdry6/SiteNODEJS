@@ -1,0 +1,46 @@
+<h2>Coșul tău de cumpărături:</h2>
+
+<div class="descriere">
+    <% if (utilizator) { %>
+        <% if (locals.produseCos && produseCos.length > 0) { %>
+            <h3>Produsele selectate:</h3>
+            <table>
+                <thead>
+                    <tr >
+                        <th>Nr. Crt.</th>
+                        <th>Nume Produs</th>
+                        <th>Cantitate</th>
+                        <th>Preț</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% let nr = 1; %>
+                    <% produseCos.forEach(function(p) { %>
+                        <tr>
+                            <td id="td-firma"><%= nr++ %></td>
+                            <td><%= p.nume %></td>
+                            <td id="td-firma"><%= p.cantitate %></td>
+                            <td id="td-pret"><%= p.pret.toFixed(2) %> RON</td>
+                        </tr>
+                    <% }); %>
+                    <tr style="font-weight: 700;">
+                        <td style="border-top: 2px dashed var(--color-purple); text-align: center;" colspan="3">Total de plată:</td>
+                        <td style="border-top: 2px dashed var(--color-purple); text-align: right;"><%= total.toFixed(2) %> RON</td>
+                    </tr>
+                </tbody>
+            </table>
+        <% } else { %>
+            <div>
+                <p>Coșul tău este gol!</p>
+                <h3>Întoarce-te la pagina principală pentru a adăuga produse.</h3>
+            </div>
+        <% } %>
+
+        <br>
+        <a href="/"><i>Înapoi la Produse →</i></a>
+
+    <% } else { %>
+        <p>Trebuie să te autentifici pentru a-ți vizualiza coșul!</p>
+        <a href="/autentificare">Autentificare→</a>
+    <% } %>
+</div>

@@ -62,12 +62,17 @@ header a i {
 header nav {
     font-size: 30px;
     margin-left: auto;
+    /* align-items: center; */
 }
 header a:hover {
     color: var(--color-white);
 }
 header a i:hover {
     color: var(--color-lila);
+}
+header a:hover svg path,
+header a:hover svg circle {
+    fill: var(--color-white) !important;
 }
 footer {
     font-family: var(--font-text);
@@ -237,12 +242,14 @@ td {
     border: none;
     padding: 0;
 }
-#btn-cos:hover{
+#btn-cos:hover {
     box-shadow: none;
 }
-#cart:hover{
-    fill: var(--color-white);
+#btn-cos:hover #cart path,
+#btn-cos:hover #cart circle {
+    fill: var(--color-purple) !important;
 }
-#cart:active{
-    stroke: var(--color-white);
+#btn-cos:active #cart path,
+#btn-cos:active #cart circle {
+    fill: var(--color-white) !important;
 }

@@ -193,9 +193,59 @@ app.post('/adauga-cos', (req, res) => {
 
     const idProdus = req.body.id_produs;
     console.log(`Utilizatorul ${req.session.utilizator.Prenume} a adăugat în coș produsul cu ID: ${idProdus}`);
-    
+
+    if (!req.session.cos) {
+        req.session.cos = [];
+    }
+    req.session.cos.push(idProdus);
+
+    // console.log("Coșul curent al utilizatorului conține ID-urile:", req.session.cos);
+
     res.redirect('/');
 });
 
+app.get('/vizualizare-cos', (req, res) => {
+    if (!req.session.utilizator) {
+        return res.redirect('/autentificare');
+    }
+
+    const idsInCos = req.session.cos || [];
+
+    if (idsInCos.length === 0) {
+        return res.render('vizualizare-cos', { produseCos: [], total: 0 });
+    }
+
+    const cantitati = {};
+    idsInCos.forEach(id => {
+        cantitati[id] = (cantitati[id] || 0) + 1;
+    });
+    const idUriUnice = Object.keys(cantitati);
+
+    let db = new sqlite3.Database('cumparaturi.db');
+
+    const placeholders = idsInCos.map(() => '?').join(',');
+    const sql = `SELECT * FROM produse WHERE id IN (${placeholders})`;
+
+    db.all(sql, idsInCos, (err, rows) => {
+        if (err) {
+            console.error("Eroare la extragerea produselor din coș:", err.message);
+            db.close();
+            return res.render('vizualizare-cos', { produseCos: [], total: 0 });
+        }
+
+        let produseCos = [];
+        let total = 0;
+
+        rows.forEach(row => {
+            row.cantitate = cantitati[row.id];
+            produseCos.push(row);
+            
+            total += row.pret * row.cantitate;
+        });
+
+        res.render('vizualizare-cos', { produseCos: produseCos, total: total });
+        db.close();
+    });
+});
 
 app.listen(port, () => console.log(`Serverul rulează la adresa http://localhost:${port}/`));
