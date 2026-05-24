@@ -6,6 +6,73 @@ const crypto = require('crypto'); //modulul nativ pentru criptografie
 const app = express();
 const port = 6789;
 
+const rateLimit = require('express-rate-limit');
+const istoricPenalizari = new Map();
+const IPBlocate = new Map();
+
+const limitatorAutentificare = rateLimit({
+    windowMs: 1 * 60 * 1000, // 1 minut
+    max: 5, // maxim 5 incercari
+    handler: (req, res) => {
+        const ip = req.ip;
+        
+        let incercari = istoricPenalizari.get(ip) || 0;
+        incercari++;
+        istoricPenalizari.set(ip, incercari);
+
+        const durataBlocareMs = incercari * 60 * 1000; // timpul de timeout creste progresiv cu un min
+        IPBlocate.set(ip, Date.now() + durataBlocareMs);
+        
+        return res.status(403).send(`
+            <div class="descriere">
+                <p>403 Forbidden: Prea multe tentative eșuate.</p>
+                <div>Acces blocat pentru următoarele ${durataBlocareMs} minute.</div>
+            </div>
+        `);
+    },
+    standardHeaders: true,
+    legacyHeaders: false,
+});
+app.use((req, res, next) => {
+    const ip = req.ip;
+    const momentDeblocare = IPBlocate.get(ip);
+
+    if (momentDeblocare) {
+        if (Date.now() < momentDeblocare) {
+            return res.status(403).send(`
+                <div class="descriere">
+                    <p>403 Forbidden: Accesul dumneavoastră la acest server a fost suspendat temporar pentru activități suspecte.</p>
+                </div>
+            `);
+        } else {
+            IPBlocate.delete(ip);
+        }
+    }
+    next();
+});
+
+
+const contor404 = new Map();
+function inregistreazaEroare404(ip) {
+    let dateIP = contor404.get(ip) || { numar: 0, timestamp: Date.now() };
+    
+    if (Date.now() - dateIP.timestamp > 60 * 1000) {
+        dateIP = { numar: 0, timestamp: Date.now() };
+    }
+
+    dateIP.numar++;
+    contor404.set(ip, dateIP);
+
+    // mai mult de 10 erori 404 intr-un minut => BYE
+    if (dateIP.numar > 10) {
+        const durataBlocareServer = 1 * 60 * 1000;
+        IPBlocate.set(ip, Date.now() + durataBlocareServer);
+        contor404.delete(ip);
+        console.warn(`[ALERTĂ SECURITATE] IP-ul ${ip} a fost blocat global pentru scanare de vulnerabilități.`);
+    }
+}
+
+
 const cookieParser = require('cookie-parser');
 app.use(cookieParser());
 
@@ -35,7 +102,7 @@ app.use((req, res, next) => {
         req.session.csrfToken = crypto.randomBytes(32).toString('hex');
     }
     res.locals.csrfToken = req.session.csrfToken;
-    
+
     next();
 });//variabila utilizator devine disponibila global în toate fisierele EJS
 
@@ -63,9 +130,13 @@ function verificaRol(rolPermis) {
         }
         
         if (req.session.utilizator.rol !== rolPermis) {
-            return res.status(403).send("<div><h2>403 Forbidden: Nu aveți permisiunea de a accesa această pagină!</h2><a href='/'>Înapoi la pagina principală →</a></div>");
+            return res.status(403).send(`
+                <div class="descriere">
+                    <p>403 Forbidden: Nu aveți permisiunea de a accesa această pagină!</p>
+                    <a href='/'><i>Înapoi la pagina principală →</i></a>
+                </div>
+            `);
         }
-
         next();
     };
 }
@@ -74,7 +145,12 @@ function verificaCSRF(req, res, next) {
     const tokenTrimis = req.body._csrf;
 
     if (!tokenTrimis || tokenTrimis !== req.session.csrfToken) {
-        return res.status(403).send("<div'><h2>403 Forbidden: Atac CSRF detectat sau Token invalid!</h2><a href='/'>Înapoi la pagina principală →</a></div>");
+        return res.status(403).send(`
+            <div class="descriere">
+                <p>403 Forbidden: Atac CSRF detectat sau Token invalid!</p>
+                <a href='/'><i>Înapoi la pagina principală →</i></a>
+            </div>
+        `);
     }
     next();
 }
@@ -100,11 +176,12 @@ app.get('/autentificare', (req, res) => {
     res.render('autentificare', { mesajEroare: mesajEroare });
 });
 
-// parola => NO ESCAPE (pentru a nu strica caracterele speciale)                                   async pt bcrypt
+// parola => NO ESCAPE (pentru a nu strica caracterele speciale)                                   
 app.post('/verificare-autentificare', [
     verificaCSRF,
+    limitatorAutentificare,
     body('utilizator').trim().escape(), body('parola').trim()
-], async(req, res) => {
+], async(req, res) => { // async pt bcrypt
     const erori = validationResult(req);
     if (!erori.isEmpty()) {
         res.cookie('mesajEroare', 'Datele introduse conțin caractere interzise.');
@@ -354,6 +431,16 @@ app.post('/admin/adauga-produs', [
         res.cookie('mesajSuccesAdmin', `Produsul "${nume}" a fost adăugat cu succes!`);
         res.redirect('/admin');
     });
+});
+
+app.use((req, res) => {
+    inregistreazaEroare404(req.ip);
+    res.status(404).send(`
+            <div class="descriere">
+                <h2>404 Not Found: Resursa solicitată nu a fost găsită pe acest server.</h2>
+                <a href='/'><i>Înapoi la prima pagină →</i></a>
+            </div>
+        `);
 });
 
 app.listen(port, () => console.log(`Serverul rulează la adresa http://localhost:${port}/`));
