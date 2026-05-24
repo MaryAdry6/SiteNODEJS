@@ -30,6 +30,7 @@
                             <td id="td-pret"><%= p.pret.toFixed(2) %> RON</td>
                             <td style="border: none;">
                                 <form action="/adauga-cos" method="POST" style="display:inline;">
+                                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                                     <input type="hidden" name="id_produs" value="<%= p.id %>">
                                     <button id="btn-cos" type="submit">
                                         <svg id="cart" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="30" height="30" viewBox="0 0 256 256" xml:space="preserve">

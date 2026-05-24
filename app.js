@@ -2,17 +2,24 @@ const express = require('express');
 const expressLayouts = require('express-ejs-layouts');
 const bodyParser = require('body-parser')
 const fs = require('fs'); // modulul pentru fisiere
+const crypto = require('crypto'); //modulul nativ pentru criptografie
 const app = express();
 const port = 6789;
 
 const cookieParser = require('cookie-parser');
 app.use(cookieParser());
 
+
 const session = require('express-session');
 app.use(session({
     secret: 'amogus',
     resave: false,
-    saveUninitialized: false
+    saveUninitialized: false,
+    cookie: {
+        httpOnly: true,
+        secure: false, // schimbat in 'true' pe un server real cu HTTPS
+        sameSite: 'lax' // ofera o protecție nativa la nivel de browser împotriva CSRF
+    }
 }));
 
 const sqlite3 = require('sqlite3').verbose();
@@ -23,6 +30,12 @@ const { body, validationResult } = require('express-validator');
 
 app.use((req, res, next) => {
     res.locals.utilizator = req.session.utilizator;
+
+    if (!req.session.csrfToken) {
+        req.session.csrfToken = crypto.randomBytes(32).toString('hex');
+    }
+    res.locals.csrfToken = req.session.csrfToken;
+    
     next();
 });//variabila utilizator devine disponibila global în toate fisierele EJS
 
@@ -50,11 +63,20 @@ function verificaRol(rolPermis) {
         }
         
         if (req.session.utilizator.rol !== rolPermis) {
-            return res.status(403).send("<h2>403 Forbidden: Nu aveți permisiunea de a accesa această pagină!</h2><a href='/'>Înapoi la pagina principală →</a>");
+            return res.status(403).send("<div><h2>403 Forbidden: Nu aveți permisiunea de a accesa această pagină!</h2><a href='/'>Înapoi la pagina principală →</a></div>");
         }
 
         next();
     };
+}
+
+function verificaCSRF(req, res, next) {
+    const tokenTrimis = req.body._csrf;
+
+    if (!tokenTrimis || tokenTrimis !== req.session.csrfToken) {
+        return res.status(403).send("<div'><h2>403 Forbidden: Atac CSRF detectat sau Token invalid!</h2><a href='/'>Înapoi la pagina principală →</a></div>");
+    }
+    next();
 }
 
 app.get('/', (req, res) => {
@@ -79,7 +101,10 @@ app.get('/autentificare', (req, res) => {
 });
 
 // parola => NO ESCAPE (pentru a nu strica caracterele speciale)                                   async pt bcrypt
-app.post('/verificare-autentificare', [body('utilizator').trim().escape(), body('parola').trim()], async(req, res) => {
+app.post('/verificare-autentificare', [
+    verificaCSRF,
+    body('utilizator').trim().escape(), body('parola').trim()
+], async(req, res) => {
     const erori = validationResult(req);
     if (!erori.isEmpty()) {
         res.cookie('mesajEroare', 'Datele introduse conțin caractere interzise.');
@@ -231,7 +256,10 @@ app.get('/incarcare-bd', (req, res) => {
     });
 });
 
-app.post('/adauga-cos', [body('id_produs').trim().escape().isInt().toInt()], (req, res) => {
+app.post('/adauga-cos', [
+    verificaCSRF,
+    body('id_produs').trim().escape().isInt().toInt()
+], (req, res) => {
     const erori = validationResult(req);
     if (!erori.isEmpty()) {
         return res.status(400).send("Cerere invalidă! ID-ul produsului este CoMpRoMiS.");
@@ -297,6 +325,7 @@ app.get('/admin', verificaRol('ADMIN'), (req, res) => {
 
 app.post('/admin/adauga-produs', [
     verificaRol('ADMIN'),
+    verificaCSRF,
     body('nume').trim().escape().notEmpty().withMessage('Numele produsului este obligatoriu.'),
     body('firma').trim().escape().notEmpty().withMessage('Firma este obligatorie.'),
     body('pret').trim().isFloat({ min: 0.01 }).withMessage('Prețul trebuie să fie un număr pozitiv, nenul.')
