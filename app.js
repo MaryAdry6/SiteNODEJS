@@ -20,13 +20,14 @@ const limitatorAutentificare = rateLimit({
         incercari++;
         istoricPenalizari.set(ip, incercari);
 
-        const durataBlocareMs = incercari * 60 * 1000; // timpul de timeout creste progresiv cu un min
+        const timpBlocareMinute = 1 * incercari; // timpul de timeout creste progresiv cu un min
+        const durataBlocareMs = timpBlocareMinute * 60 * 1000;
         IPBlocate.set(ip, Date.now() + durataBlocareMs);
         
         return res.status(403).send(`
             <div class="descriere">
                 <p>403 Forbidden: Prea multe tentative eșuate.</p>
-                <div>Acces blocat pentru următoarele ${durataBlocareMs} minute.</div>
+                <div>Acces blocat pentru următoarele ${timpBlocareMinute} minute.</div>
             </div>
         `);
     },
