@@ -199,3 +199,50 @@ form button:active {
     color: var(--color-dark);
     box-shadow: 4px 4px 50px 5px var(--color-white) inset;
 }
+
+h3 {
+    font-family: var(--font-text);
+    margin: 10px calc(var(--margine) * 2);
+}
+
+table {
+    margin: 10px calc(var(--margine) * 3);
+    width: 100vh;
+}
+th {
+    font-family: var(--font-titlu);
+    color: var(--color-lila);
+    border-bottom: 2px dashed var(--color-purple);
+    border-right: 2px dashed var(--color-purple);
+    border-left: 2px dashed var(--color-purple);
+}
+td {
+    font-family: var(--font-text);
+    color: var(--color-dark);
+
+    border-right: 2px dashed var(--color-purple);
+    border-left: 2px dashed var(--color-purple);
+
+    padding: 3px 10px;
+}
+#td-pret {
+    text-align: right;
+}
+#td-firma {
+    text-align: center;
+}
+
+#btn-cos {
+    background-color: #00000000;
+    border: none;
+    padding: 0;
+}
+#btn-cos:hover{
+    box-shadow: none;
+}
+#cart:hover{
+    fill: var(--color-white);
+}
+#cart:active{
+    stroke: var(--color-white);
+}
